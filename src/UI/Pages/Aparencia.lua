@@ -6,9 +6,9 @@ local Theme = ThemeModule.Theme
 
 local function build(page)
     local section = UI.createAutoSection(page, 1)
-    UI.createSectionHeader(section, "Paletas de batalha", 1)
+    UI.createSectionHeader(section, "Paletas visuais", 1)
 
-    local paletteRow = Helpers.new("Frame", {
+    local presetRow = Helpers.new("Frame", {
         Size = UDim2.new(1, 0, 0, 36),
         BackgroundTransparency = 1,
         LayoutOrder = 2,
@@ -20,44 +20,44 @@ local function build(page)
         Padding = UDim.new(0, 8),
         SortOrder = Enum.SortOrder.LayoutOrder,
         VerticalAlignment = Enum.VerticalAlignment.Center,
-        Parent = paletteRow,
+        Parent = presetRow,
     })
 
     local presets = {
         {
-            name = "Azul Arena",
+            name = "Azul",
             colors = {
-                Primary = Color3.fromRGB(34, 113, 255),
-                Background = Color3.fromRGB(12, 18, 34),
-                Surface = Color3.fromRGB(19, 29, 48),
-                Button = Color3.fromRGB(31, 42, 64),
-                Border = Color3.fromRGB(68, 92, 134),
+                Primary = Color3.fromRGB(46, 134, 255),
+                Background = Color3.fromRGB(17, 20, 26),
+                Surface = Color3.fromRGB(24, 30, 40),
+                Button = Color3.fromRGB(40, 48, 60),
+                Border = Color3.fromRGB(77, 95, 120),
                 Text = Color3.fromRGB(240, 245, 255),
                 TextDim = Color3.fromRGB(170, 182, 214),
             },
         },
         {
-            name = "Vermelho Furia",
+            name = "Vermelho",
             colors = {
-                Primary = Color3.fromRGB(255, 88, 88),
-                Background = Color3.fromRGB(28, 12, 14),
-                Surface = Color3.fromRGB(44, 20, 22),
-                Button = Color3.fromRGB(62, 34, 34),
-                Border = Color3.fromRGB(124, 64, 64),
+                Primary = Color3.fromRGB(255, 95, 95),
+                Background = Color3.fromRGB(28, 14, 16),
+                Surface = Color3.fromRGB(42, 22, 24),
+                Button = Color3.fromRGB(67, 34, 34),
+                Border = Color3.fromRGB(120, 60, 60),
                 Text = Color3.fromRGB(255, 240, 240),
-                TextDim = Color3.fromRGB(214, 166, 166),
+                TextDim = Color3.fromRGB(220, 172, 172),
             },
         },
         {
-            name = "Laranja Turbo",
+            name = "Laranja",
             colors = {
-                Primary = Color3.fromRGB(255, 138, 54),
-                Background = Color3.fromRGB(36, 20, 12),
-                Surface = Color3.fromRGB(54, 31, 20),
-                Button = Color3.fromRGB(74, 44, 30),
-                Border = Color3.fromRGB(150, 86, 48),
-                Text = Color3.fromRGB(255, 245, 238),
-                TextDim = Color3.fromRGB(220, 184, 160),
+                Primary = Color3.fromRGB(255, 150, 72),
+                Background = Color3.fromRGB(30, 22, 16),
+                Surface = Color3.fromRGB(49, 36, 26),
+                Button = Color3.fromRGB(70, 51, 38),
+                Border = Color3.fromRGB(146, 104, 76),
+                Text = Color3.fromRGB(255, 246, 236),
+                TextDim = Color3.fromRGB(214, 176, 146),
             },
         },
     }
@@ -68,7 +68,7 @@ local function build(page)
             BackgroundColor3 = preset.colors.Primary,
             Text = "",
             AutoButtonColor = false,
-            Parent = paletteRow,
+            Parent = presetRow,
         })
         Helpers.new("UICorner", { CornerRadius = UDim.new(1, 0), Parent = button })
         Helpers.new("UIStroke", { Color = Theme.Border, Thickness = 2, Parent = button })
@@ -81,10 +81,10 @@ local function build(page)
         end)
     end
 
-    local toggleSection = UI.createAutoSection(page, 2)
-    UI.createSectionHeader(toggleSection, "Ajustes rápida", 1)
-    local toggle = UI.createToggle(toggleSection, "Animações", true, 2, function(value)
-        -- ajuste futuramente
+    local editor = UI.createAutoSection(page, 2)
+    UI.createSectionHeader(editor, "Ajustes rápidos", 1)
+    local toggle = UI.createToggle(editor, "Animações", true, 2, function(value)
+        -- futuro ajuste de animações
     end)
 
     return { toggle = toggle }

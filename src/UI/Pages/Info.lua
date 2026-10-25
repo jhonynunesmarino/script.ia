@@ -11,10 +11,10 @@ local function build(page)
     values.sessionTime = UI.createInfoRow(section, "Tempo de sessão", 3)
     values.currentTime = UI.createInfoRow(section, "Horário atual", 4)
 
-    local charSection = UI.createAutoSection(page, 2)
-    UI.createSectionHeader(charSection, "Personagem", 1)
-    values.position = UI.createInfoRow(charSection, "Posição (X, Y, Z)", 2)
-    values.state = UI.createInfoRow(charSection, "Estado", 3)
+    local posSection = UI.createAutoSection(page, 2)
+    UI.createSectionHeader(posSection, "Personagem", 1)
+    values.position = UI.createInfoRow(posSection, "Posição (X, Y, Z)", 2)
+    values.state = UI.createInfoRow(posSection, "Estado", 3)
 
     return values
 end

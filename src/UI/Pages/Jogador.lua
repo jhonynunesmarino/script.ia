@@ -2,11 +2,9 @@ local ThemeModule = require(script.Parent.Parent.Parent.Theme)
 local Helpers = require(script.Parent.Parent.Parent.Helpers)
 local UI = require(script.Parent.Parent.Components)
 
-local Theme = ThemeModule.Theme
-
 local function build(page)
     local section = UI.createAutoSection(page, 1)
-    UI.createSectionHeader(section, "Perfil do jogador", 1)
+    UI.createSectionHeader(section, "Informações do jogador", 1)
 
     local values = {}
     values.name = UI.createInfoRow(section, "Nome", 2)

@@ -12,7 +12,7 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
 local screenGui = Helpers.new("ScreenGui", {
-    Name = "BeyRivalsMenu",
+    Name = "ModernBeyStyleGui",
     ResetOnSpawn = false,
     IgnoreGuiInset = true,
     ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -33,7 +33,7 @@ local shadow = Helpers.new("Frame", {
     Size = UDim2.fromScale(1, 1),
     Position = UDim2.fromOffset(0, 8),
     BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-    BackgroundTransparency = 0.4,
+    BackgroundTransparency = 0.42,
     BorderSizePixel = 0,
     ZIndex = 1,
     Parent = windowRoot,
@@ -73,7 +73,7 @@ local titleLabel = Helpers.new("TextLabel", {
     Size = UDim2.new(1, -20, 1, 0),
     Position = UDim2.fromOffset(16, 0),
     BackgroundTransparency = 1,
-    Text = "BeyRivals Hub",
+    Text = "BeyStyle Menu",
     TextSize = 16,
     TextXAlignment = Enum.TextXAlignment.Left,
     Font = Enum.Font.GothamBold,
@@ -181,7 +181,7 @@ local function createPage(id, title)
     return page
 end
 
-local function refreshNav() 
+local function refreshNav()
     for id, button in pairs(navButtons) do
         button.BackgroundColor3 = (id == activePageId) and Theme.Primary or Theme.Button
     end
@@ -235,79 +235,57 @@ Helpers.new("UIListLayout", {
     Parent = sidebar,
 })
 
-local pageList = {
-    { id = "inicio", title = "Início", module = require(script.Parent.UI.Pages.Inicio) },
-    { id = "jogador", title = "Jogador", module = require(script.Parent.UI.Pages.Jogador) },
-    { id = "servidor", title = "Servidor", module = require(script.Parent.UI.Pages.Servidor) },
-    { id = "batalha", title = "Batalha", module = require(script.Parent.UI.Pages.Batalha) },
-    { id = "inventario", title = "Inventário", module = require(script.Parent.UI.Pages.Inventario) },
-    { id = "aparencia", title = "Aparência", module = require(script.Parent.UI.Pages.Aparencia) },
-    { id = "info", title = "Info", module = require(script.Parent.UI.Pages.Info) },
+local pageDefinitions = {
+    { id = "inicio", title = "Início", builder = require(script.Parent.UI.Pages.Inicio) },
+    { id = "jogador", title = "Jogador", builder = require(script.Parent.UI.Pages.Jogador) },
+    { id = "servidor", title = "Servidor", builder = require(script.Parent.UI.Pages.Servidor) },
+    { id = "info", title = "Info", builder = require(script.Parent.UI.Pages.Info) },
+    { id = "aparencia", title = "Aparência", builder = require(script.Parent.UI.Pages.Aparencia) },
 }
 
-for _, pageData in ipairs(pageList) do
-    local page = createPage(pageData.id, pageData.title)
-    pageData.module(page)
-    createNavButton(pageData.id, pageData.title)
+for _, data in ipairs(pageDefinitions) do
+    local page = createPage(data.id, data.title)
+    data.builder(page)
+    createNavButton(data.id, data.title)
 end
 
 local function updateInfo()
-    local labels = {
-        name = nil,
-        displayName = nil,
-        userId = nil,
-        placeId = nil,
-        jobId = nil,
-        playerCount = nil,
+    local pageStates = {
+        jogador = require(script.Parent.UI.Pages.Jogador).__state,
+        servidor = require(script.Parent.UI.Pages.Servidor).__state,
+        info = require(script.Parent.UI.Pages.Info).__state,
     }
 
-    local pageRefs = pages
-    local playerName = player.Name
-    local displayName = player.DisplayName
-    local userId = tostring(player.UserId)
+    if pageStates.jogador then
+        pageStates.jogador.name.Text = player.Name
+        pageStates.jogador.displayName.Text = player.DisplayName
+        pageStates.jogador.userId.Text = tostring(player.UserId)
+        pageStates.jogador.state.Text = "Online"
+    end
 
-    for _, pageData in ipairs(pageList) do
-        local page = pageData.module
-        if page and page.__state then
-            local state = page.__state
-            if state.name then
-                state.name.Text = playerName
-            end
-            if state.displayName then
-                state.displayName.Text = displayName
-            end
-            if state.userId then
-                state.userId.Text = userId
-            end
-            if state.placeId then
-                state.placeId.Text = tostring(game.PlaceId)
-            end
-            if state.jobId then
-                state.jobId.Text = tostring(game.JobId)
-            end
-            if state.playerCount then
-                state.playerCount.Text = tostring(#Players:GetPlayers())
-            end
-        end
+    if pageStates.servidor then
+        pageStates.servidor.placeId.Text = tostring(game.PlaceId)
+        pageStates.servidor.jobId.Text = tostring(game.JobId)
+        pageStates.servidor.playerCount.Text = tostring(#Players:GetPlayers())
+    end
+
+    if pageStates.info then
+        pageStates.info.entryTime.Text = DateTime.now():FormatLocalTime("DD/MM/YYYY", "pt-BR")
+        pageStates.info.currentTime.Text = DateTime.now():FormatLocalTime("HH:mm:ss", "pt-BR")
+        pageStates.info.position.Text = tostring(player.Character and player.Character.HumanoidRootPart and player.Character.HumanoidRootPart.Position or Vector3.new(0, 0, 0))
+        pageStates.info.state.Text = player.Character and player.Character.Humanoid and player.Character.Humanoid:GetState() or "Idle"
     end
 end
 
-for _, pageData in ipairs(pageList) do
-    local built = pageData.module(pages[pageData.id])
+for _, data in ipairs(pageDefinitions) do
+    local built = data.builder(pages[data.id])
     if built then
-        pageData.module.__state = built
+        data.builder.__state = built
     end
 end
 
 updateInfo()
 showPage("inicio")
-
-local windowState = "normal"
-local restoreSize = windowRoot.Size
-local restorePos = windowRoot.Position
-local dragging = false
-local dragStartPos = Vector2.zero
-local dragStartInput = Vector2.zero
 
 local function createWindowButton(text, order, hoverColor, callback)
     local button = Helpers.new("TextButton", {
@@ -334,6 +312,13 @@ local function createWindowButton(text, order, hoverColor, callback)
 
     return button
 end
+
+local windowState = "normal"
+local restoreSize = windowRoot.Size
+local restorePos = windowRoot.Position
+local dragging = false
+local dragStartPos = Vector2.zero
+local dragStartInput = Vector2.zero
 
 local minimizeWindow = function()
     if windowState == "minimized" then
@@ -444,5 +429,5 @@ end)
 Players.PlayerAdded:Connect(updateInfo)
 Players.PlayerRemoving:Connect(updateInfo)
 
-print("[script.ia] BeyRivals-style UI inicializada.")
+print("[script.ia] Modern menu loaded.")
 return screenGui
