@@ -73,7 +73,9 @@ function LockOn.new(config)
     self.ignoreNPCs = config.ignoreNPCs == true
     self.teamCheck = config.teamCheck or false
     self.target = nil
+    self.targetHud = nil
     self.onTargetChanged = config.onTargetChanged or function() end
+    self.showHealthBar = config.showHealthBar ~= false
 
     self.screenGui = Instance.new("ScreenGui")
     self.screenGui.Name = "LockOnHud"
@@ -106,20 +108,131 @@ function LockOn.new(config)
     self.targetLabel.Visible = false
     self.targetLabel.Parent = self.screenGui
 
-    self.highlight = nil
-
-    local function clearHighlight()
-        if self.highlight and self.highlight.Parent then
-            self.highlight:Destroy()
+    local function clearTargetHud()
+        if self.targetHud and self.targetHud.Parent then
+            self.targetHud:Destroy()
         end
-        self.highlight = nil
+        self.targetHud = nil
+    end
+
+    local function createTargetHud(targetModel)
+        clearTargetHud()
+
+        local root = getRoot(targetModel)
+        if not root then
+            return
+        end
+
+        local billboard = Instance.new("BillboardGui")
+        billboard.Name = "TargetHud"
+        billboard.AlwaysOnTop = true
+        billboard.Size = UDim2.fromOffset(140, 56)
+        billboard.StudsOffset = Vector3.new(0, 4.2, 0)
+        billboard.Adornee = root
+        billboard.Parent = targetModel
+
+        local panel = Instance.new("Frame")
+        panel.Name = "Panel"
+        panel.Size = UDim2.fromScale(1, 1)
+        panel.BackgroundColor3 = Color3.fromRGB(18, 20, 24)
+        panel.BackgroundTransparency = 0.2
+        panel.Parent = billboard
+
+        local corner = Instance.new("UICorner")
+        corner.CornerRadius = UDim.new(0, 8)
+        corner.Parent = panel
+
+        local nameLabel = Instance.new("TextLabel")
+        nameLabel.Name = "TargetName"
+        nameLabel.Size = UDim2.new(1, -18, 0, 20)
+        nameLabel.Position = UDim2.new(0, 9, 0, 4)
+        nameLabel.BackgroundTransparency = 1
+        nameLabel.Text = getCharacterName(targetModel)
+        nameLabel.TextColor3 = config.targetTextColor or Color3.fromRGB(255, 255, 255)
+        nameLabel.TextSize = 12
+        nameLabel.Font = Enum.Font.GothamBold
+        nameLabel.TextXAlignment = Enum.TextXAlignment.Left
+        nameLabel.Parent = panel
+
+        local barBg = Instance.new("Frame")
+        barBg.Name = "HealthBg"
+        barBg.Size = UDim2.new(1, -18, 0, 10)
+        barBg.Position = UDim2.new(0, 9, 0, 24)
+        barBg.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+        barBg.Parent = panel
+
+        local barCorner = Instance.new("UICorner")
+        barCorner.CornerRadius = UDim.new(1, 0)
+        barCorner.Parent = barBg
+
+        local barFill = Instance.new("Frame")
+        barFill.Name = "HealthFill"
+        barFill.Size = UDim2.new(1, 0, 1, 0)
+        barFill.BackgroundColor3 = config.healthBarColor or Color3.fromRGB(97, 215, 143)
+        barFill.Parent = barBg
+
+        local fillCorner = Instance.new("UICorner")
+        fillCorner.CornerRadius = UDim.new(1, 0)
+        fillCorner.Parent = barFill
+
+        local hpText = Instance.new("TextLabel")
+        hpText.Name = "HealthText"
+        hpText.Size = UDim2.new(1, -18, 0, 18)
+        hpText.Position = UDim2.new(0, 9, 0, 32)
+        hpText.BackgroundTransparency = 1
+        hpText.Text = "100%"
+        hpText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        hpText.TextSize = 10
+        hpText.Font = Enum.Font.GothamSemibold
+        hpText.TextXAlignment = Enum.TextXAlignment.Right
+        hpText.Parent = panel
+
+        billboard:SetAttribute("NameLabel", nameLabel)
+        billboard:SetAttribute("HealthFill", barFill)
+        billboard:SetAttribute("HealthText", hpText)
+
+        self.targetHud = billboard
+    end
+
+    local function updateTargetHud()
+        if not self.target or not self.targetHud or not self.showHealthBar then
+            return
+        end
+
+        local root = getRoot(self.target)
+        if not root then
+            return
+        end
+
+        local nameLabel = self.targetHud:FindFirstChild("Panel", true):FindFirstChild("TargetName", true)
+        local fill = self.targetHud:FindFirstChild("Panel", true):FindFirstChild("HealthBg", true):FindFirstChild("HealthFill", true)
+        local healthText = self.targetHud:FindFirstChild("Panel", true):FindFirstChild("HealthText", true)
+
+        if nameLabel then
+            nameLabel.Text = getCharacterName(self.target)
+        end
+
+        local humanoid = getHumanoid(self.target)
+        if humanoid and fill and healthText then
+            local ratio = clamp(humanoid.Health / math.max(humanoid.MaxHealth, 1), 0, 1)
+            fill.Size = UDim2.new(ratio, 0, 1, 0)
+            healthText.Text = string.format("%d%%", math.floor(ratio * 100))
+        end
     end
 
     function self:ClearTarget()
         self.target = nil
         self.targetLabel.Visible = false
         self.targetLabel.Text = ""
-        clearHighlight()
+
+        if self.targetHud then
+            self.targetHud:Destroy()
+            self.targetHud = nil
+        end
+
+        if self.reticle then
+            self.reticle.TextStrokeTransparency = 1
+        end
     end
 
     function self:GetTarget()
@@ -138,35 +251,6 @@ function LockOn.new(config)
         if not self.enabled then
             self:ClearTarget()
         end
-    end
-
-    local function createHighlight(targetModel)
-        clearHighlight()
-
-        local root = getRoot(targetModel)
-        if not root then
-            return
-        end
-
-        local billboard = Instance.new("BillboardGui")
-        billboard.Name = "LockOnHighlight"
-        billboard.AlwaysOnTop = true
-        billboard.Size = UDim2.fromOffset(80, 20)
-        billboard.StudsOffset = Vector3.new(0, 3.5, 0)
-        billboard.Adornee = root
-        billboard.Parent = targetModel
-
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.fromScale(1, 1)
-        label.BackgroundTransparency = 1
-        label.Text = "TARGET"
-        label.TextColor3 = config.reticleColor or Color3.fromRGB(255, 255, 255)
-        label.TextScaled = true
-        label.Font = Enum.Font.GothamBold
-        label.TextStrokeTransparency = 0.4
-        label.Parent = billboard
-
-        self.highlight = billboard
     end
 
     local function isValidTarget(model)
@@ -203,10 +287,8 @@ function LockOn.new(config)
 
         if not self.ignoreNPCs then
             for _, descendant in ipairs(workspace:GetDescendants()) do
-                if descendant:IsA("Model") and descendant ~= LocalPlayer.Character and descendant ~= workspace then
-                    if isValidTarget(descendant) then
-                        table.insert(list, descendant)
-                    end
+                if descendant:IsA("Model") and descendant ~= LocalPlayer.Character and isValidTarget(descendant) then
+                    table.insert(list, descendant)
                 end
             end
         end
@@ -236,6 +318,7 @@ function LockOn.new(config)
             if root then
                 local offset = root.Position - cameraPosition
                 local distance = offset.Magnitude
+
                 if distance <= self.maxDistance then
                     local direction = offset.Unit
                     local dot = direction:Dot(cameraForward)
@@ -265,10 +348,12 @@ function LockOn.new(config)
             if self.target ~= targetModel then
                 self.target = targetModel
                 self.onTargetChanged(targetModel)
-                createHighlight(targetModel)
+                createTargetHud(targetModel)
                 self.targetLabel.Text = getCharacterName(targetModel)
                 self.targetLabel.Visible = true
             end
+
+            updateTargetHud()
 
             local root = getRoot(targetModel)
             if root then
@@ -303,6 +388,10 @@ end
 function LockOn:Destroy()
     if self._renderConnection then
         self._renderConnection:Disconnect()
+    end
+
+    if self.targetHud then
+        self.targetHud:Destroy()
     end
 
     if self.screenGui then
