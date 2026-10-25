@@ -1,11 +1,15 @@
 local Theme = {
-    Primary = Color3.fromRGB(45, 125, 210),
-    Background = Color3.fromRGB(28, 28, 34),
-    Surface = Color3.fromRGB(38, 38, 46),
-    Button = Color3.fromRGB(52, 52, 62),
-    Border = Color3.fromRGB(72, 72, 84),
-    Text = Color3.fromRGB(240, 240, 245),
-    TextDim = Color3.fromRGB(158, 158, 170),
+    Primary = Color3.fromRGB(91, 109, 255),
+    Secondary = Color3.fromRGB(72, 192, 255),
+    Background = Color3.fromRGB(12, 16, 24),
+    Surface = Color3.fromRGB(22, 27, 37),
+    SurfaceAlt = Color3.fromRGB(31, 38, 52),
+    Button = Color3.fromRGB(40, 48, 63),
+    Border = Color3.fromRGB(78, 98, 130),
+    Text = Color3.fromRGB(242, 246, 255),
+    TextDim = Color3.fromRGB(168, 180, 204),
+    Success = Color3.fromRGB(118, 210, 142),
+    Warning = Color3.fromRGB(255, 167, 87),
 }
 
 local themeBindings = {}

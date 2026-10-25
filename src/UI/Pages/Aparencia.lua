@@ -1,5 +1,5 @@
-local ThemeModule = require(script.Parent.Parent.Parent.Theme)
-local Helpers = require(script.Parent.Parent.Parent.Helpers)
+local ThemeModule = require(script.Parent.Parent.Theme)
+local Helpers = require(script.Parent.Parent.Helpers)
 local UI = require(script.Parent.Parent.Components)
 
 local Theme = ThemeModule.Theme

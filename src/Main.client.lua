@@ -7,7 +7,6 @@ local Helpers = require(script.Parent.Helpers)
 local UI = require(script.Parent.UI.Components)
 
 local Theme = ThemeModule.Theme
-
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
@@ -143,12 +142,10 @@ local function createPage(id, title)
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
         ScrollBarThickness = 5,
-        ScrollBarImageColor3 = Theme.Border,
         AutomaticCanvasSize = Enum.AutomaticSize.Y,
         Visible = false,
         Parent = pagesArea,
     })
-    ThemeModule.bindTheme(page, "ScrollBarImageColor3", "Border")
 
     Helpers.new("UIPadding", {
         PaddingLeft = UDim.new(0, 16),
@@ -250,30 +247,32 @@ for _, data in ipairs(pageDefinitions) do
 end
 
 local function updateInfo()
-    local pageStates = {
-        jogador = require(script.Parent.UI.Pages.Jogador).__state,
-        servidor = require(script.Parent.UI.Pages.Servidor).__state,
-        info = require(script.Parent.UI.Pages.Info).__state,
-    }
+    local jogadorState = require(script.Parent.UI.Pages.Jogador).__state
+    local servidorState = require(script.Parent.UI.Pages.Servidor).__state
+    local infoState = require(script.Parent.UI.Pages.Info).__state
 
-    if pageStates.jogador then
-        pageStates.jogador.name.Text = player.Name
-        pageStates.jogador.displayName.Text = player.DisplayName
-        pageStates.jogador.userId.Text = tostring(player.UserId)
-        pageStates.jogador.state.Text = "Online"
+    if jogadorState then
+        jogadorState.name.Text = player.Name
+        jogadorState.displayName.Text = player.DisplayName
+        jogadorState.userId.Text = tostring(player.UserId)
+        jogadorState.state.Text = "Online"
     end
 
-    if pageStates.servidor then
-        pageStates.servidor.placeId.Text = tostring(game.PlaceId)
-        pageStates.servidor.jobId.Text = tostring(game.JobId)
-        pageStates.servidor.playerCount.Text = tostring(#Players:GetPlayers())
+    if servidorState then
+        servidorState.placeId.Text = tostring(game.PlaceId)
+        servidorState.jobId.Text = tostring(game.JobId)
+        servidorState.playerCount.Text = tostring(#Players:GetPlayers())
     end
 
-    if pageStates.info then
-        pageStates.info.entryTime.Text = DateTime.now():FormatLocalTime("DD/MM/YYYY", "pt-BR")
-        pageStates.info.currentTime.Text = DateTime.now():FormatLocalTime("HH:mm:ss", "pt-BR")
-        pageStates.info.position.Text = tostring(player.Character and player.Character.HumanoidRootPart and player.Character.HumanoidRootPart.Position or Vector3.new(0, 0, 0))
-        pageStates.info.state.Text = player.Character and player.Character.Humanoid and player.Character.Humanoid:GetState() or "Idle"
+    if infoState then
+        infoState.entryTime.Text = DateTime.now():FormatLocalTime("DD/MM/YYYY", "pt-BR")
+        infoState.currentTime.Text = DateTime.now():FormatLocalTime("HH:mm:ss", "pt-BR")
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local pos = player.Character.HumanoidRootPart.Position
+            infoState.position.Text = string.format("%.1f, %.1f, %.1f", pos.X, pos.Y, pos.Z)
+        else
+            infoState.position.Text = "0, 0, 0"
+        end
     end
 end
 
