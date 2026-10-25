@@ -1,0 +1,21 @@
+{
+  "name": "script-ia",
+  "tree": {
+    "$className": "DataModel",
+    "children": [
+      {
+        "$className": "StarterPlayer",
+        "children": [
+          {
+            "$className": "StarterPlayerScripts",
+            "children": [
+              {
+                "$path": "src/Main.client.lua"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
