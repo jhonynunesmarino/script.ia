@@ -4,7 +4,7 @@ local UI = require(script.Parent.Parent.Components)
 
 local function build(page)
     local section = UI.createAutoSection(page, 1)
-    UI.createSectionHeader(section, "Informações do Servidor", 1)
+    UI.createSectionHeader(section, "Status da arena", 1)
 
     local values = {}
     values.experience = UI.createInfoRow(section, "Experiência", 2)
