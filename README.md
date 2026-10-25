@@ -1,6 +1,6 @@
 # script.ia
 
-Sistema moderno de interface para Roblox Studio, organizado em módulos para facilitar manutenção, atualização e reutilização.
+Sistema moderno de interface para Roblox Studio, organizado em módulos para facilitar manutenção, evolução e reutilização.
 
 ## Estrutura
 
@@ -21,36 +21,30 @@ script.ia/
 ## Como usar
 
 1. Abra o projeto no Roblox Studio.
-2. Instale o Rojo (opcional), se quiser sincronizar com arquivos locais.
+2. Se quiser sincronizar com arquivos locais, use Rojo.
 3. Coloque `src/Main.client.lua` em `StarterPlayer > StarterPlayerScripts`.
-4. Ajuste `src/Config.lua` com o seu nome e preferências.
+4. Ajuste `src/Config.lua` com seu nome e preferências.
 
 ## Configuração rápida
-
-Arquivo de configuração:
 
 ```lua
 local Config = {
     CreatorName = "SeuNome",
     Version = "1.0.0",
     Credits = "Desenvolvido com Luau · Roblox Studio",
+    Description = "Sistema de interface moderno, responsivo e totalmente personalizável.",
     ToggleKey = Enum.KeyCode.F2,
 }
 
 return Config
 ```
 
-## Tema
+## O que foi organizado
 
-O tema está em `src/Theme.lua` e pode ser customizado por paleta.
-
-## Observação
-
-Esse repositório foi reorganizado para separar:
 - configuração
 - tema
 - helpers
-- componentes de interface
+- componentes de UI
 - script principal
 
-Mantém o mesmo conceito de UI moderna, mas com uma estrutura que escala melhor.
+Essa estrutura deixa o projeto mais escalável e fácil de evoluir.
